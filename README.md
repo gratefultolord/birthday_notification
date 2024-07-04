@@ -7,14 +7,12 @@
 
 ### Шаг 1: Клонирование репозитория
 ```sh
-git clone https://github.com/your-repository/birthday_notification.git
+git clone git@github.com:gratefultolord/birthday_notification.git
 cd birthday_notification
 ```
 ### Шаг 2: : Инициализация модуля и установка зависимостей
 ```sh
-go mod init birthday_notification
-go get github.com/gorilla/mux
-go get github.com/mattn/go-sqlite3
+go mod tidy
 ```
 ### Шаг 3: Настройка базы данных
 База данных SQLite будет создана автоматически при запуске приложения. Вы можете использовать встроенные тестовые данные.
