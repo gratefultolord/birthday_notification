@@ -4,6 +4,7 @@ import (
 	"birthday_notification/internal/handlers"
 	"birthday_notification/internal/repository"
 	"birthday_notification/pkg/middleware"
+	"database/sql"
 
 	"github.com/gorilla/mux"
 )
@@ -12,16 +13,18 @@ type Server struct {
 	Router *mux.Router
 }
 
-func NewServer() *Server {
+func NewServer(db *sql.DB) *Server {
 	r := mux.NewRouter()
-	repo := repository.NewUserRepository()
-	birthdayHandler := handlers.NewBirthdayHandler(repo.Repo)
+	userRepo := repository.NewUserRepository(db)
+	subscriptionRepo := repository.NewSubscriptionRepository(db)
+
+	birthdayHandler := handlers.NewBirthdayHandler(userRepo)
+	subscriptionHandler := handlers.NewSubscriptionHandler(subscriptionRepo)
 
 	r.HandleFunc("/birthdays", birthdayHandler.GetBirthdays).Methods("GET")
-	r.HandleFunc("/subscribe", handlers.Subscribe).Methods("POST")
-	r.HandleFunc("/unsubscribe", handlers.Unsubscribe).Methods("POST")
+	r.HandleFunc("/subscribe", subscriptionHandler.Subscribe).Methods("POST")
+	r.HandleFunc("/unsubscribe", subscriptionHandler.Unsubscribe).Methods("POST")
 
-	// Применение middleware для всех маршрутов
 	r.Use(middleware.AuthMiddleware)
 
 	return &Server{Router: r}

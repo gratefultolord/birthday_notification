@@ -2,27 +2,30 @@ package utils
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 )
 
-// ParseDate parses a string date in the format "YYYY-MM-DD" and returns a time.Time object.
 func ParseDate(dateStr string) (time.Time, error) {
 	layout := "2006-01-02"
 	t, err := time.Parse(layout, dateStr)
 	if err != nil {
 		return time.Time{}, err
 	}
+	log.Printf("Parsed date: %s -> %s\n", dateStr, t)
 	return t, nil
 }
 
-// IsToday checks if the given date is today.
 func IsToday(date time.Time) bool {
 	now := time.Now()
-	return now.Year() == date.Year() && now.YearDay() == date.YearDay()
+	location := now.Location()
+	dateInLocation := date.In(location)
+
+	log.Printf("Comparing dates: %s (given) vs %s (now)\n", dateInLocation.Format("2006-01-02"), now.Format("2006-01-02"))
+	return now.Month() == dateInLocation.Month() && now.Day() == dateInLocation.Day()
 }
 
-// RespondWithJSON sends a JSON response with the given status code and payload.
 func RespondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
@@ -35,7 +38,6 @@ func RespondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
 	w.Write(response)
 }
 
-// RespondWithError sends a JSON response with the given status code and error message.
 func RespondWithError(w http.ResponseWriter, status int, message string) {
 	RespondWithJSON(w, status, map[string]string{"error": message})
 }

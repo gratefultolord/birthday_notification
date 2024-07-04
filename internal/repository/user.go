@@ -2,6 +2,7 @@ package repository
 
 import (
 	"birthday_notification/internal/models"
+	"database/sql"
 )
 
 type UserRepositoryInterface interface {
@@ -9,23 +10,32 @@ type UserRepositoryInterface interface {
 }
 
 type UserRepository struct {
-	Repo UserRepositoryInterface
+	DB *sql.DB
 }
 
-// NewUserRepository создает новый экземпляр UserRepository с реальным репозиторием.
-func NewUserRepository() *UserRepository {
-	return &UserRepository{Repo: &RealUserRepository{}}
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{DB: db}
 }
 
 func (repo *UserRepository) GetAllUsers() ([]models.User, error) {
-	return repo.Repo.GetAllUsers()
-}
+	rows, err := repo.DB.Query("SELECT id, name, birthdate, email FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-type RealUserRepository struct{}
+	users := []models.User{}
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Birthdate, &user.Email); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
 
-func (repo *RealUserRepository) GetAllUsers() ([]models.User, error) {
-	return []models.User{
-		{ID: 1, Name: "Alice", Birthdate: "1990-07-04", Email: "alice@example.com"},
-		{ID: 2, Name: "Bob", Birthdate: "1988-07-05", Email: "bob@example.com"},
-	}, nil
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

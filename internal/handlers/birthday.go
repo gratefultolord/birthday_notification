@@ -3,6 +3,7 @@ package handlers
 import (
 	"birthday_notification/internal/repository"
 	"birthday_notification/internal/utils"
+	"log"
 	"net/http"
 )
 
@@ -21,16 +22,21 @@ func (h *BirthdayHandler) GetBirthdays(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Полученные пользователи: %+v\n", users)
+
 	var birthdaysToday []string
 	for _, user := range users {
 		birthdate, err := utils.ParseDate(user.Birthdate)
 		if err != nil {
-			continue // Игнорировать ошибки парсинга даты
+			log.Printf("Ошибка парсинга даты для пользователя %s: %v\n", user.Name, err)
+			continue
 		}
 		if utils.IsToday(birthdate) {
 			birthdaysToday = append(birthdaysToday, user.Name)
 		}
 	}
+
+	log.Printf("Дни рождения сегодня: %+v\n", birthdaysToday)
 
 	utils.RespondWithJSON(w, http.StatusOK, birthdaysToday)
 }
