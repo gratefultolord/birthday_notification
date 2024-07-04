@@ -9,38 +9,39 @@
 ```sh
 git clone https://github.com/your-repository/birthday_notification.git
 cd birthday_notification
-
+```
 ### Шаг 2: : Инициализация модуля и установка зависимостей
 ```sh
 go mod init birthday_notification
 go get github.com/gorilla/mux
 go get github.com/mattn/go-sqlite3
-
+```
 ### Шаг 3: Настройка базы данных
 База данных SQLite будет создана автоматически при запуске приложения. Вы можете использовать встроенные тестовые данные.
 
 ### Шаг 4: Запуск приложения
 ```sh
 go run cmd/main.go
-
+```
 ## Тестирование API
 Получение списка дней рождения
 ```sh
 curl -H "Authorization: Bearer valid_token" http://localhost:8080/birthdays
-
+```
 Подписка на уведомления
 ```sh
 curl -X POST -H "Authorization: Bearer valid_token" -H "Content-Type: application/json" -d '{"user_id": 1, "email": "subscriber@example.com"}' http://localhost:8080/subscribe
-
+```
 Отписка от уведомлений
 ```sh
 curl -X POST -H "Authorization: Bearer valid_token" -H "Content-Type: application/json" -d '{"user_id": 1, "email": "subscriber@example.com"}' http://localhost:8080/unsubscribe
-
+```
 ## Запуск тестов
 ```sh
 go test ./tests
-
+```
 ## Структура каталогов
+```plaintext
 cmd/: Главный файл для запуска приложения.
   main.go: Точка входа для запуска сервера.
 config/: Конфигурация приложения.
